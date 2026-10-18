@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { notFound, errorHandler } from "./middlewares/error.middleware";
 import authRoutes from "./modules/auth/auth.routes";
+import userRoutes from "./modules/users/users.router";
 
 const app = express();
 app.disable("x-powered-by");
@@ -12,6 +13,8 @@ app.use(express.json());
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/users", userRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
