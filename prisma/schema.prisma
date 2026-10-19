@@ -10,28 +10,64 @@ datasource db {
 
 enum Role {
   ADMIN
-  TUTOR
   STUDENT
 }
 
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String
-  password  String
-  role      Role     @default(STUDENT)
+  id           Int     @id @default(autoincrement()) @map("user_id")
+  username     String  @unique
+  email        String  @unique
+  fullName     String  @map("full_name")
+  passwordHash String  @map("password_hash")
+  phoneNumber  String? @map("phone_number")
+  avatarUrl    String? @map("avatar_url")
+  role         Role    @default(STUDENT)
+  isActive     Boolean @default(true) @map("is_active")
+
+  @@map("users")
+}
+
+model Category {
+  id      Int      @id @default(autoincrement()) @map("category_id")
+  name    String   @map("category_name")
+  slug    String   @unique
+  courses Course[]
+
+  @@map("categories")
+}
+
+model Tutor {
+  id        Int      @id @default(autoincrement()) @map("tutor_id")
+  name      String   @map("tutor_name")
+  company   String?
+  mainJob   String?  @map("main_job")
+  avatarUrl String?  @map("avatar_url")
+  bio       String?
   courses   Course[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  @@map("tutors")
 }
 
 model Course {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  price       Int      @default(0)
-  tutorId     Int
-  tutor       User     @relation(fields: [tutorId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              Int          @id @default(autoincrement()) @map("course_id")
+  title           String
+  slug            String       @unique
+  description     String?
+  thumbnailUrl    String?      @map("thumbnail_url")
+  previewVideoUrl String?      @map("preview_video_url")
+  price           Int          @default(0)
+  status          CourseStatus @default(DRAFT)
+  categoryId      Int          @map("category_id")
+  tutorId         Int          @map("tutor_id")
+  category        Category     @relation(fields: [categoryId], references: [id])
+  tutor           Tutor        @relation(fields: [tutorId], references: [id])
+
+  @@index([categoryId])
+  @@index([tutorId])
+  @@map("courses")
 }
