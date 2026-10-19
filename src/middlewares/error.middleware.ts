@@ -42,8 +42,11 @@ export const errorHandler = (
     return res.status(404).json({ message: "Data tidak ditemukan" });
   if (code === "P2002")
     return res.status(409).json({ message: "Data sudah ada (duplikat)" });
+  if (code === "P2023")
+    return res
+      .status(400)
+      .json({ message: "Data referensi (kategori/tutor) tidak ditemukan" });
 
   console.error(err);
   res.status(500).json({ message: "Internal server error" });
 };
-
