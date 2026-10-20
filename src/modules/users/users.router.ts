@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
-import { authenticate, authorize } from "../../middlewares/auth.middleware";
+import { verifyToken, authorize } from "../../middlewares/auth.middleware";
 import { HttpError } from "../../middlewares/error.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { parseId } from "../../utils/parse-id";
@@ -20,7 +20,7 @@ const updateSchema = z.object({
   role: z.enum(["ADMIN", "TUTOR", "STUDENT"]).optional(),
 });
 
-router.use(authenticate);
+router.use(verifyToken);
 
 router.get("/", authorize("ADMIN"), async (_req, res) => {
   res.json(await prisma.user.findMany({ select: safeSelect }));

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { validate } from "../../middlewares/validate.middleware";
 import { parseId } from "../../utils/parse-id";
 import { prisma } from "../../lib/prisma";
-import { authenticate, authorize } from "../../middlewares/auth.middleware";
+import { verifyToken, authorize } from "../../middlewares/auth.middleware";
 import { HttpError } from "../../middlewares/error.middleware";
 
 const router = Router();
@@ -31,11 +31,11 @@ router.get("/:id", async (req, res) => {
   res.status(201).json(course);
 });
 
-// butuh login admin/tutor
+// butuh login admin
 router.post(
   "/",
-  authenticate,
-  authorize("ADMIN", "TUTOR"),
+  verifyToken,
+  authorize("ADMIN"),
   validate(createSchema),
   async (req, res) => {
     const course = await prisma.course.create({
@@ -48,8 +48,8 @@ router.post(
 
 router.patch(
   "/:id",
-  authenticate,
-  authorize("ADMIN", "TUTOR"),
+  verifyToken,
+  authorize("ADMIN"),
   validate(updateSchema),
   async (req, res) => {
     const id = parseId(req.params.id);
@@ -63,20 +63,15 @@ router.patch(
   },
 );
 
-router.delete(
-  "/:id",
-  authenticate,
-  authorize("ADMIN", "TUTOR"),
-  async (req, res) => {
-    const id = parseId(req.params.id);
-    const course = await prisma.course.findUnique({ where: { id } });
-    if (!course) throw new HttpError(404, "Course tidak ditemukan");
-    if (req.user!.role !== "ADMIN" && course.tutorId !== req.user!.id)
-      throw new HttpError(403, "Bukan course kamu");
+router.delete("/:id", verifyToken, authorize("ADMIN"), async (req, res) => {
+  const id = parseId(req.params.id);
+  const course = await prisma.course.findUnique({ where: { id } });
+  if (!course) throw new HttpError(404, "Course tidak ditemukan");
+  if (req.user!.role !== "ADMIN" && course.tutorId !== req.user!.id)
+    throw new HttpError(403, "Bukan course kamu");
 
-    await prisma.course.delete({ where: { id } });
-    res.status(204).send();
-  },
-);
+  await prisma.course.delete({ where: { id } });
+  res.status(204).send();
+});
 
 export default router;
