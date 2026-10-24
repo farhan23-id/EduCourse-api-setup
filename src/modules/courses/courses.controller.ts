@@ -7,9 +7,11 @@ import {
   listCourses,
   updateCourse,
 } from "./courses.service";
+import { listCoursesQuerySchema } from "./courses.schema";
 
 export const getCourses = async (req: Request, res: Response) => {
-  res.json(await listCourses(req.user!.role));
+  const query = listCoursesQuerySchema.parse(req.query);
+  res.json(await listCourses(query, req.user!.role));
 };
 
 export const getCourse = async (req: Request, res: Response) => {
@@ -28,4 +30,3 @@ export const removeCourse = async (req: Request, res: Response) => {
   await deleteCourse(parseId(req.params.id));
   res.sendStatus(204);
 };
- 
