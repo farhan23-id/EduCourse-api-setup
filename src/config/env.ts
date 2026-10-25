@@ -15,4 +15,11 @@ export const env = {
 
   // URL publik backend, tanpa "/" di akhir
   appUrl: (process.env.APP_URL as string).replace(/\/$/, ""),
+  mailFrom: process.env.MAIL_FROM as string,
+  smtp: {
+    host: process.env.SMTP_HOST as string,
+    port: Number(process.env.SMTP_PORT),
+    user: process.env.SMTP_USER || undefined,
+    pass: process.env.SMTP_PASS || undefined,
+  },
 };

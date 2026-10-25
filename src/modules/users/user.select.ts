@@ -9,4 +9,5 @@ export const publicUserSelect = {
   avatarUrl: true,
   role: true,
   isActive: true,
+  isVerified: true,
 } satisfies Prisma.UserSelect;

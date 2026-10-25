@@ -1,8 +1,20 @@
 import { Request, Response } from "express";
-import { getProfile, loginUser, registerUser } from "./auth.service";
+import { verifyEmailQuerySchema } from "./auth.schema";
+import {
+  getProfile,
+  loginUser,
+  registerUser,
+  verifyUserEmail,
+} from "./auth.service";
 
 export const register = async (req: Request, res: Response) => {
-  res.status(201).json(await registerUser(req.body));
+  const { user, emailSent } = await registerUser(req.body);
+  res.status(201).json({
+    message: emailSent
+      ? "Registrasi berhasil. Silakan cek email untuk verifikasi akun."
+      : "Registrasi berhasil, tetapi email verifikasi gagal dikirim.",
+    user,
+  });
 };
 
 export const login = async (req: Request, res: Response) => {
@@ -11,4 +23,10 @@ export const login = async (req: Request, res: Response) => {
 
 export const me = async (req: Request, res: Response) => {
   res.json(await getProfile(req.user!.id));
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  const { token } = verifyEmailQuerySchema.parse(req.query);
+  await verifyUserEmail(token);
+  res.json({ message: "Email Verified Successfully" });
 };
