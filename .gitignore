@@ -3,5 +3,5 @@ dist
 .env
 src/generated
 /src/generated/prisma
-
-/src/generated/prisma
+uploads/*
+!uploads/.gitkeep

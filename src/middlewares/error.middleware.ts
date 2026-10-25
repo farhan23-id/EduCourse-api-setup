@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
+import { MulterError } from "multer";
 
 export class HttpError extends Error {
   constructor(
@@ -35,6 +36,17 @@ export const errorHandler = (
   }
   if (err instanceof HttpError) {
     return res.status(err.status).json({ message: err.message });
+  }
+
+  if (err instanceof MulterError) {
+    const messages: Record<string, string> = {
+      LIMIT_FILE_SIZE: "Ukuran file terlalu besar (maksimal 2 MB)",
+      LIMIT_UNEXPECTED_FILE:
+        "Gunakan field bernama 'image' untuk mengunggah file",
+    };
+    return res
+      .status(400)
+      .json({ message: messages[err.code] ?? `Upload gagal: ${err.message}` });
   }
 
   const code = prismaCode(err);
